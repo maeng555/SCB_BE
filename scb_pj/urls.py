@@ -1,28 +1,21 @@
-"""
-URL configuration for scb_pj project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework.authtoken import views #토큰
-from student.api import StudentList,StudentDetail
+from rest_framework import permissions
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView # api사용
+
+from student.api import StudentList, StudentDetail
+from scb.views import ProfileList, ProfileDetail
+from rest_framework.permissions import AllowAny #권한풀어주기
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls')),
-    path('api/student_list',StudentList.as_view(),name='student_list'),
-    path('api/student_list/<int:student_id>', StudentDetail.as_view(),name='student_list'),
-    path('api/auth',views.obtain_auth_token, name='obtain_auth_token'),
+    path('api-auth/', include('rest_framework.urls')),  # 로그인 인증을 위한 URL
+    path('api/student_list', StudentList.as_view(), name='student_list'),
+    path('api/student_list/<int:student_id>', StudentDetail.as_view(), name='student_detail'),
+    path('api/profiles/', ProfileList.as_view(), name='profile-list'),
+    path('api/profiles/<int:school_id>/', ProfileDetail.as_view(), name='profile-detail'),
+    #스웨거 사용하기 밑에코드
+   path('schema/', SpectacularAPIView.as_view(permission_classes=[AllowAny]), name='schema'),
+    path('swagger/', SpectacularSwaggerView.as_view(url_name='schema', permission_classes=[AllowAny]), name='swagger-ui'),
 ]

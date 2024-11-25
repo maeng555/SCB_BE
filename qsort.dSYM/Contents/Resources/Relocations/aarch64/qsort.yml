@@ -1,0 +1,8 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/maengjin-yeong/Desktop/scb_pj/qsort'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _compare, symObjAddr: 0x0, symBinAddr: 0x100003DC8, symSize: 0x70 }
+  - { offset: 0x4F, size: 0x8, addend: 0x0, symName: _compare, symObjAddr: 0x0, symBinAddr: 0x100003DC8, symSize: 0x70 }
+  - { offset: 0x85, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x70, symBinAddr: 0x100003E38, symSize: 0x108 }
+...

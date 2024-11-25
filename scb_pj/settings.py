@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'student',
-    'rest_framework.authtoken'
+    'scb',
+    'drf_spectacular',
+    #'rest_framework.authtoken',
+    
 ]
 
 MIDDLEWARE = [
@@ -120,15 +123,35 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 REST_FRAMEWORK={
-    'DEFAULT_AUTHENTICATION_CLASSES' : [
-        'rest_framework.authentication.TokenAuthentication'
-    ],
-    'DEFAULT_PERMISSION_CLASSES':[
-        'rest_framework.permissions.IsAuthenticated'
-    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ], 
+    ## 위에는 api 권한풀어주기
+
+    #'DEFAULT_AUTHENTICATION_CLASSES' : [
+     #   'rest_framework.authentication.TokenAuthentication'
+    #],
+    #'DEFAULT_PERMISSION_CLASSES':[
+     #   'rest_framework.permissions.IsAuthenticated'
+    #],
 }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# settings.py에 추가
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'My API',
+    'DESCRIPTION': 'API documentation for student and profile management',
+    'VERSION': '1.0.0',
+    'CONTACT': {
+        'email': 'contact@myapi.local',
+    },
+    'LICENSE': {
+        'name': 'MIT License',
+    },
+    'SERVE_INCLUDE_SCHEMA': False,  # 문서화할 API를 선택적으로 포함시킬 수 있습니다.
+}
+## 여기도 중ㅇ ###############################
