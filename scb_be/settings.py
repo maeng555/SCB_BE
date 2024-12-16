@@ -37,9 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'smuprofile',
+    
     'rest_framework',
+    'rest_framework.authtoken',
     'drf_spectacular',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -108,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -124,3 +126,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+REST_FRAMEWORK={
+    'DEFAULT_AUTHENTICATION_CLASSES' : [
+       'rest_framework.authentication.TokenAuthentication',
+       ]
+}
+# settings.py
+# settings.py
+AUTH_USER_MODEL = 'users.CustomUser'
+
