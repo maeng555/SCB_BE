@@ -1,5 +1,16 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
 
-from .models import CustomUser  # User 모델 임포트
+from .models import Profile
 
-admin.site.register(CustomUser)  # User 모델을 admin에 등록213123
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    can_delete = False
+    verbose_name_plural = "profile" # 복수형으로 이름 표기하지 않도록 직접 지정
+    
+class UserAdmin(BaseUserAdmin):
+    inlines = (ProfileInline, )
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)

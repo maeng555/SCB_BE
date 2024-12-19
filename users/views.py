@@ -1,14 +1,16 @@
 # users/views.py
-from .models import CustomUser
+from .models import User
 from rest_framework import generics
 #from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from .serializers import RegisterSerializer, LoginSerializer
+from .serializers import RegisterSerializer, LoginSerializer,ProfileSerializer
+from .models import Profile
+from .permissions import CustomReadOnly
 
 class RegisterView(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = RegisterSerializer
     
 class LoginView(generics.GenericAPIView):
@@ -19,3 +21,8 @@ class LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         token = serializer.validated_data # validate()의 리턴값인 token을 받아온다.
         return Response({"token": token.key}, status=status.HTTP_200_OK)
+    
+class ProfileView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [CustomReadOnly]
