@@ -9,7 +9,7 @@ class Board(models.Model):
     date_created = models.DateTimeField("작성일", auto_now_add=True, null=False)  # 작성일
     date_updated = models.DateTimeField("수정일", auto_now=True)  # 수정일
 
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,null=False)  # 작성자 연결
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=False)  # 작성자 연결
 
     def __str__(self):
         return f"{self.title} ({self.school_id})"
@@ -17,8 +17,8 @@ class Board(models.Model):
 
 # 댓글 모델
 class Comment(models.Model):
-    board = models.ForeignKey(Board, related_name='comments', on_delete=models.CASCADE,null=True)  # 게시판 연결
-    author = models.ForeignKey(User, on_delete=models.CASCADE,null=True)  # 댓글 작성자
+    board = models.ForeignKey(Board, related_name='comments', on_delete=models.CASCADE, null=True)  # 게시판 연결
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # 댓글 작성자
     school_id = models.CharField("학번", max_length=10, blank=True)  # 학번
     text = models.TextField("댓글 내용", null=False)  # 댓글 내용
     created_at = models.DateTimeField("작성일", auto_now_add=True)  # 댓글 작성일
