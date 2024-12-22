@@ -10,32 +10,29 @@ from .models import Profile
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())], # 이메일에 대한 중복 검증
+        validators=[UniqueValidator(queryset=User.objects.all())],
     )
     password = serializers.CharField(
         write_only=True,
         required=True,
-        validators=[validate_password], # 비밀번호에 대한 검증
+        validators=[validate_password],
     )
-    password2 = serializers.CharField( # 비밀번호 확인을 위한 필드
+    password2 = serializers.CharField(
         write_only=True,
         required=True,
     )
-
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password', 'password2')
 
-    def validate(self, data): # password과 password2의 일치 여부 확인
+    def validate(self, data):
         if data['password'] != data['password2']:
             raise serializers.ValidationError(
                 {"password": "Password fields didn't match."})
-        
         return data
 
     def create(self, validated_data):
-        # CREATE 요청에 대해 create 메서드를 오버라이딩하여, 유저를 생성하고 토큰도 생성하게 해준다.
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -43,22 +40,41 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         token = Token.objects.create(user=user)
-        return user
+        return {
+            'user': user,
+            'token': token.key  # .key로 반환
+        }
+
     
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
-    # write_only=True 옵션을 통해 클라이언트->서버의 역직렬화는 가능하지만, 서버->클라이언트 방향의 직렬화는 불가능하도록 해준다.
-    
+
     def validate(self, data):
-        user = authenticate(**data)
+        user = authenticate(username=data['username'], password=data['password'])
         if user:
-            token = Token.objects.get(user=user) # 해당 유저의 토큰을 불러옴
-            return token
-        raise serializers.ValidationError( # 가입된 유저가 없을 경우
+            # Token 객체가 반환되는지 확인
+            token, created = Token.objects.get_or_create(user=user)
+            if isinstance(token, Token):  # Token 객체인지 확인
+                return {'token': token.key}  # Token 객체에서 key를 가져옵니다.
+            else:
+                raise serializers.ValidationError(
+                    {"error": "Token creation failed."}
+                )
+        raise serializers.ValidationError(
             {"error": "Unable to log in with provided credentials."}
         )
+
+
 class ProfileSerializer(serializers.ModelSerializer):
+    # 유저명 (username)을 포함하도록 수정
+    username = serializers.CharField(source='user.username', read_only=True)
+
     class Meta:
         model = Profile
-        fields = ("nickname", "range", "code", "school_id","image")
+        fields = ("nickname", "range", "code", "school_id", "image","username")
+    
+    def validate_school_id(self, value):
+        if not value:
+            raise serializers.ValidationError("학번(school_id)은 필수 항목입니다.")
+        return value
