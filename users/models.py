@@ -10,7 +10,7 @@ class Profile(models.Model):
     nickname = models.CharField(max_length=50)
     range = models.CharField(max_length=50, null=True, blank=True)
     code = models.CharField(max_length=50, unique=True, null=True, blank=True)
-    school_id = models.CharField(max_length=20, unique=True)
+    #school_id = models.CharField(max_length=20, unique=True)
     image = models.ImageField(upload_to='profile/', default='default.png')
     def __str__(self):
         return self.user.username

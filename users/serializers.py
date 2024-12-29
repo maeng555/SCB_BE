@@ -1,4 +1,4 @@
-from .models import User  # CustomUser 모델을 가져옵니다
+from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
@@ -8,6 +8,13 @@ from .models import Profile
 
 # 회원가입 시리얼라이저
 class RegisterSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())  # username 중복 방지
+        ],
+        max_length=20  # 학번의 길이를 20자로 제한
+    )
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all())],
@@ -34,7 +41,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(
-            username=validated_data['username'],
+            username=validated_data['username'],  # username을 학번으로 사용
             email=validated_data['email'],
         )
         user.set_password(validated_data['password'])
@@ -45,7 +52,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             'token': token.key  # .key로 반환
         }
 
-    
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
@@ -53,28 +59,19 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         user = authenticate(username=data['username'], password=data['password'])
         if user:
-            # Token 객체가 반환되는지 확인
             token, created = Token.objects.get_or_create(user=user)
-            if isinstance(token, Token):  # Token 객체인지 확인
-                return {'token': token.key}  # Token 객체에서 key를 가져옵니다.
-            else:
-                raise serializers.ValidationError(
-                    {"error": "Token creation failed."}
-                )
+            return {'token': token.key}
         raise serializers.ValidationError(
             {"error": "Unable to log in with provided credentials."}
         )
 
-
 class ProfileSerializer(serializers.ModelSerializer):
-    # 유저명 (username)을 포함하도록 수정
     username = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         model = Profile
-        fields = ("nickname", "range", "code", "school_id", "image","username")
-    
-    def validate_school_id(self, value):
-        if not value:
-            raise serializers.ValidationError("학번(school_id)은 필수 항목입니다.")
-        return value
+        fields = ("nickname", "range", "code", "image", "username")
+
+# 수정 사항
+# 1. `school_id` 관련 부분을 모두 제거했습니다.
+# 2. `username`은 여전히 ProfileSerializer에서 읽기 전용으로 제공됩니다.
